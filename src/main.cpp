@@ -3,22 +3,18 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "logfile.h"
-#include "logdirectory.h"
+#include "lolz.h"
 
 using namespace std;
-using namespace Geek;
 
 int main(int argc, char** argv)
 {
-    LogDirectory* dir = new LogDirectory("/Users/ian/projects/lolz/logs");
-    //LogDirectory* dir = new LogDirectory("/var/log");
-    dir->watch();
+    Lolz* lolz = new Lolz();
 
-    while (true)
-    {
-        sleep(1);
-    }
+    lolz->init();
+    lolz->run();
+
+    delete lolz;
 
     return 0;
 }

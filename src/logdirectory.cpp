@@ -17,13 +17,18 @@
 
 #include "logfile.h"
 #include "logdirectory.h"
+#include "lolz.h"
 
 using namespace std;
 using namespace Geek;
 
-LogDirectory::LogDirectory(std::string path) : Logger("LogDirectory[" + path + "]")
+LogDirectory::LogDirectory(Lolz* lolz, uint64_t id, std::string path) : Logger("LogDirectory[" + path + "]")
 {
+    m_lolz = lolz;
+    m_id = id;
     m_path = path;
+
+    m_signal = Thread::createCondVar();
 }
 
 LogDirectory::~LogDirectory()
@@ -69,14 +74,49 @@ void LogDirectory::watch()
 
     vector<string> paths;
     paths.push_back(m_path);
-    fsw::monitor* monitor = fsw::monitor_factory::create_monitor(
+    m_monitor = fsw::monitor_factory::create_monitor(
         fsw_monitor_type::system_default_monitor_type,
         paths,
         process_events);
 
-    monitor->set_context(this);
-    monitor->set_recursive(true);
-    monitor->start();
+    m_monitor->set_context(this);
+    m_monitor->set_recursive(true);
+
+    m_monitorThread = new MonitorThread(this);
+    m_monitorThread->start();
+}
+
+bool LogDirectory::main()
+{
+    while (true)
+    {
+        for (auto it : m_logFiles)
+        {
+            LogFile* logFile = it.second;
+            logFile->getQueueMutex()->lock();
+
+            uint64_t position = logFile->getPosition();
+
+            vector<Data*> queue = logFile->getQueue();
+            logFile->clearQueue();
+
+            logFile->getQueueMutex()->unlock();
+
+if (!queue.empty())
+{
+            for (Data* data : queue)
+            {
+m_lolz->logEvents(logFile, data);
+delete data;
+            }
+
+        }
+m_lolz->updateLogFile(logFile, position);
+}
+
+        log(DEBUG, "main: Waiting for events...");
+        m_signal->wait();
+    }
 }
 
 void LogDirectory::scan(std::string dir)
@@ -122,11 +162,7 @@ void LogDirectory::scan(std::string dir)
 
 void LogDirectory::fileUpdated(std::string path)
 {
-    LogFile* logFile = findFile(path);
-    if (logFile == NULL)
-    {
-        logFile = addFile(path);
-    }
+    LogFile* logFile = addFile(path);
     if (logFile == NULL)
     {
         return;
@@ -136,6 +172,12 @@ void LogDirectory::fileUpdated(std::string path)
 
 LogFile* LogDirectory::addFile(std::string path)
 {
+    LogFile* file = findFile(path);
+    if (file != NULL)
+    {
+        return file;
+    }
+
     string ext = "";
     int pos = path.rfind('.');
     if (pos != string::npos)
@@ -149,7 +191,10 @@ LogFile* LogDirectory::addFile(std::string path)
         return NULL;
     }
 
-    LogFile* file = new LogFile(this, path);
+    file = new LogFile(this, path);
+    m_lolz->addLogFile(file);
+    file->init();
+
     m_logFiles.insert(make_pair(path, file));
 
     return file;
@@ -163,5 +208,25 @@ LogFile* LogDirectory::findFile(std::string path)
         return it->second;
     }
     return NULL;
+}
+
+void LogDirectory::signal()
+{
+    m_signal->signal();
+}
+
+MonitorThread::MonitorThread(LogDirectory* logDir)
+{
+    m_logDir = logDir;
+}
+
+MonitorThread::~MonitorThread()
+{
+}
+
+bool MonitorThread::main()
+{
+    m_logDir->getMonitor()->start();
+    return true;
 }
 

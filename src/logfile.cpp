@@ -7,6 +7,7 @@
 #include <geek/core-data.h>
 
 #include "logfile.h"
+#include "logdirectory.h"
 
 using namespace std;
 using namespace Geek;
@@ -18,22 +19,30 @@ LogFile::LogFile(LogDirectory* dir, std::string path) : Logger("LogFile[" + path
 
     m_fd = -1;
     m_position = 0;
+
+    m_queueMutex = Thread::createMutex();
 }
 
 LogFile::~LogFile()
 {
 }
 
+void LogFile::init()
+{
+    m_fd = open(m_path.c_str(), O_RDONLY);
+    log(INFO, "load: I'm in ur %s, findin ur bugz", m_path.c_str());
+    if (m_position > 0)
+    {
+        log(INFO, "load: I is skippin to %lld", m_position);
+        lseek(m_fd, m_position, SEEK_SET);
+    }
+}
+
 void LogFile::load()
 {
-    if (m_fd == -1)
-    {
-        m_fd = open(m_path.c_str(), O_RDONLY);
-        log(INFO, "load: I'm in ur %s, findin ur bugz", m_path.c_str());
-    }
-
     Data* data = new Data();
     uint8_t buf[4096];
+    uint64_t count = 0;
     while (true)
     {
         int res;
@@ -47,18 +56,25 @@ void LogFile::load()
         {
             break;
         }
-        log(INFO, "load: Read %d bytes", res);
-        m_position += res;
+        count += res;
         data->append(buf, res);
     }
-    log(INFO, "load: Done, position=%lld", m_position);
 
-    while (!data->eof())
+    if (count > 0)
     {
-        string line = data->readLine();
-        log(INFO, "load: LINE: %s", line.c_str());
-    }
+        m_dirty = true;
 
-    delete data;
+        m_queueMutex->lock();
+        m_position += count;
+        log(INFO, "load: I haz %lld moar bytes!", count);
+        m_queue.push_back(data);
+        m_queueMutex->unlock();
+
+        m_logDir->signal();
+    }
+    else
+    {
+        delete data;
+    }
 }
 

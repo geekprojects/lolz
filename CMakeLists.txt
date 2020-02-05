@@ -13,6 +13,7 @@ add_definitions(${libgeek_CFLAGS})
 
 add_executable(lolz
     src/main.cpp
+    src/lolz.cpp
     src/logdirectory.cpp
     src/logfile.cpp
 )
