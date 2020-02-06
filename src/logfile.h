@@ -22,7 +22,7 @@ class LogFile : Geek::Logger
 
     int m_fd;
     uint64_t m_position;
-    bool m_dirty;
+    uint64_t m_timestamp;
 
  public:
     LogFile(LogDirectory* dir, std::string path);
@@ -35,13 +35,14 @@ class LogFile : Geek::Logger
 
     void setPosition(uint64_t position) { m_position = position; }
     uint64_t getPosition() { return m_position; }
-    bool isDirty() { return m_dirty; }
+    void setTimestamp(uint64_t timestamp) { m_timestamp = timestamp; }
+    uint64_t getTimestamp() { return m_timestamp; }
 
     Geek::Mutex* getQueueMutex() { return m_queueMutex; }
     std::vector<Geek::Data*>& getQueue() { return m_queue; }
     void clearQueue() { m_queue.clear(); }
 
-    void init();
+    bool init();
     void load();
 };
 

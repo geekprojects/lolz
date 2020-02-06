@@ -44,6 +44,7 @@ class LogDirectory : Geek::Logger, public Geek::Thread
     virtual bool main();
 
     void fileUpdated(std::string path);
+    void fileDeleted(std::string path);
 
     void signal();
 };

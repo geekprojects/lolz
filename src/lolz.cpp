@@ -4,6 +4,7 @@
 #include "logdirectory.h"
 
 #include <unistd.h>
+#include <sys/time.h>
 
 using namespace std;
 using namespace Geek;
@@ -71,7 +72,6 @@ bool Lolz::run()
         it.second->start();
     }
 
-    log(INFO, "run: Sleeping");
     while (true)
     {
         sleep(1);
@@ -137,6 +137,7 @@ void Lolz::addLogFile(LogFile* logFile)
 
         logFile->setId(id);
         logFile->setPosition(position);
+        logFile->setTimestamp(timestamp);
 
         delete ps;
         return;
@@ -159,12 +160,13 @@ void Lolz::addLogFile(LogFile* logFile)
 
 void Lolz::updateLogFile(LogFile* logFile, uint64_t position)
 {
-    string updateSql = "UPDATE logfile SET position=? WHERE id = ?";
+    string updateSql = "UPDATE logfile SET position=?, timestamp=? WHERE id = ?";
 
     m_db->startTransaction();
     PreparedStatement* updatePs = m_db->prepareStatement(updateSql);
     updatePs->bindInt64(1, position);
-    updatePs->bindInt64(2, logFile->getId());
+    updatePs->bindInt64(2, getTimestamp());
+    updatePs->bindInt64(3, logFile->getId());
     updatePs->execute();
     delete updatePs;
     m_db->endTransaction();
@@ -199,5 +201,16 @@ void Lolz::logEvents(LogFile* logFile, Data* data)
 
     delete insertPs;
     delete insertFtsPs;
+}
+
+uint64_t Lolz::getTimestamp()
+{
+    timeval tv;
+    gettimeofday(&tv, NULL);
+    uint64_t millis;
+    millis = tv.tv_sec * 1000l;
+    millis += tv.tv_usec / 1000l;
+
+    return millis;
 }
 

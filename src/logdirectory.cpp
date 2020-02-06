@@ -43,6 +43,7 @@ void process_events(const vector<fsw::event>& events, void* context)
         string eventnames = "";
         bool isFile = false;
         bool isUpdated = false;
+        bool isDeleted = false;
         for (fsw_event_flag flag : evt.get_flags())
         {
             string eventname = fsw::event::get_event_flag_name(flag);
@@ -55,6 +56,10 @@ void process_events(const vector<fsw::event>& events, void* context)
             {
                 isUpdated = true;
             }
+            else if (flag == Removed)
+            {
+                isDeleted = true;
+            }
         }
 
         printf("process_events: %s: %s\n", evt.get_path().c_str(), eventnames.c_str());
@@ -63,6 +68,10 @@ void process_events(const vector<fsw::event>& events, void* context)
             if (isUpdated)
             {
                 dir->fileUpdated(evt.get_path());
+            }
+            if (isDeleted)
+            {
+                dir->fileDeleted(evt.get_path());
             }
         }
     }
@@ -102,19 +111,18 @@ bool LogDirectory::main()
 
             logFile->getQueueMutex()->unlock();
 
-if (!queue.empty())
-{
-            for (Data* data : queue)
+            if (!queue.empty())
             {
-m_lolz->logEvents(logFile, data);
-delete data;
+                for (Data* data : queue)
+                {
+                    m_lolz->logEvents(logFile, data);
+                    delete data;
+                }
             }
-
+            m_lolz->updateLogFile(logFile, position);
         }
-m_lolz->updateLogFile(logFile, position);
-}
 
-        log(DEBUG, "main: Waiting for events...");
+        // Wait for more data
         m_signal->wait();
     }
 }
@@ -170,6 +178,23 @@ void LogDirectory::fileUpdated(std::string path)
     logFile->load();
 }
 
+void LogDirectory::fileDeleted(std::string path)
+{
+    auto it = m_logFiles.find(path);
+    if (it == m_logFiles.end())
+    {
+        // I no care
+        return;
+    }
+
+    LogFile* logFile = it->second;
+    log(INFO, "fileDeleted: KTHXBYE %s", path.c_str());
+    m_lolz->updateLogFile(logFile, 0);
+    m_logFiles.erase(it);
+
+    delete logFile;
+}
+
 LogFile* LogDirectory::addFile(std::string path)
 {
     LogFile* file = findFile(path);
@@ -184,7 +209,6 @@ LogFile* LogDirectory::addFile(std::string path)
     {
         ext = path.substr(pos + 1);
     }
-    log(INFO, "addFile: ext=%s", ext.c_str());
 
     if (ext == "gz")
     {
@@ -193,7 +217,14 @@ LogFile* LogDirectory::addFile(std::string path)
 
     file = new LogFile(this, path);
     m_lolz->addLogFile(file);
-    file->init();
+
+    bool res;
+    res = file->init();
+    if (!res)
+    {
+        delete file;
+        return NULL;
+    }
 
     m_logFiles.insert(make_pair(path, file));
 

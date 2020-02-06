@@ -27,6 +27,8 @@ class Lolz : Geek::Logger
     void addLogFile(LogFile* logFile);
     void updateLogFile(LogFile* logFile, uint64_t position);
     void logEvents(LogFile* logFile, Geek::Data* data);
+
+    static uint64_t getTimestamp();
 };
 
 #endif
