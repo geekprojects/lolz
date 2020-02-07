@@ -1,4 +1,4 @@
-lolz
+lolz [![Build Status](https://travis-ci.org/geekprojects/lolz.svg?branch=master)](https://travis-ci.org/geekprojects/lolz)
 ====
 
 Oh hai! I'm in ur logz, findin ur bugz!

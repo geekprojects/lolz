@@ -24,7 +24,7 @@ addons:
     update: true
 
 install:
-  - git clone https://github.com/geekprojects/libgeek.git; cd libgeek; mkdir build; cd build; cmake ..; make; if [ "$TRAVIS_OS_NAME" == "osx" ]; then make install; else sudo make install; sudo ldconfig; fi; cd -
+  - git clone https://github.com/geekprojects/libgeek.git; cd libgeek; mkdir build; cd build; cmake ..; make; if [ "$TRAVIS_OS_NAME" == "osx" ]; then make install; else sudo make install; sudo ldconfig; fi; cd ../..
 
 before_script:
   - mkdir build; cd build; cmake ..
