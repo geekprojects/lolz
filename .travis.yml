@@ -1,0 +1,43 @@
+---
+
+language: cpp
+dist: bionic
+arch:
+  - amd64
+  - arm64
+
+addons:
+  apt:
+    packages:
+      - libxml2-dev
+      - libpng-dev
+      - libjpeg-dev
+      - libjpeg-turbo8
+      - libfreetype6-dev
+      - libsigc++-2.0-dev
+      - uuid-dev
+  homebrew:
+    packages:
+      - freetype
+      - libsigc++@2
+      - libtool
+    update: true
+
+install:
+  - git clone https://github.com/geekprojects/libgeek.git; cd libgeek; mkdir build; cd build; cmake ..; make; if [ "$TRAVIS_OS_NAME" == "osx" ]; then make install; else sudo make install; sudo ldconfig; fi; cd -
+
+before_script:
+  - mkdir build; cd build; cmake ..
+
+script:
+  - make
+# && make test
+
+compiler:
+  - clang
+  - gcc
+
+os:
+  - linux
+  - osx
+
