@@ -16,11 +16,14 @@ addons:
       - libfreetype6-dev
       - libsigc++-2.0-dev
       - uuid-dev
+      - libyaml-cpp-dev
+      - libfswatch-dev
   homebrew:
     packages:
       - freetype
       - libsigc++@2
       - libtool
+      - fswatch
     update: true
 
 install:
