@@ -17,7 +17,7 @@ find_path(HAS_FSW_MONITOR_FACTORY NAMES libfswatch/c++/monitor_factory.hpp)
 
 if (HAS_FSW_MONITOR_FACTORY)
     add_definitions(-DHAS_FSW_MONITOR_FACTORY)
-endif
+endif()
 
 include_directories(
     ${fsw_INCLUDE_BASE}
