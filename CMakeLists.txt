@@ -8,7 +8,13 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(libgeek REQUIRED libgeek)
 pkg_check_modules(yamlcpp REQUIRED yaml-cpp)
-find_library(FSW_LIBRARY NAMES fswatch )
+
+find_library(fsw_LIBRARY NAMES fswatch )
+find_path(fsw_INCLUDE_BASE NAMES libfswatch/c++/monitor_factory.hpp)
+
+include_directories(
+    ${fsw_INCLUDE_BASE}
+)
 
 add_definitions(${libgeek_CFLAGS} ${yamlcpp_CFLAGS})
 
@@ -19,5 +25,5 @@ add_executable(lolz
     src/logfile.cpp
 )
 
-target_link_libraries(lolz ${libgeek_LDFLAGS} ${FSW_LIBRARY} ${yamlcpp_LDFLAGS})
+target_link_libraries(lolz ${libgeek_LDFLAGS} ${fsw_LIBRARY} ${yamlcpp_LDFLAGS})
 
