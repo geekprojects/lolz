@@ -24,6 +24,7 @@ addons:
       - libsigc++@2
       - libtool
       - fswatch
+      - yaml-cpp
     update: true
 
 install:
