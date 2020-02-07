@@ -14,7 +14,10 @@
 
 #include <libfswatch/c++/event.hpp>
 #include <libfswatch/c++/monitor.hpp>
+
+#ifdef HAS_FSW_MONITOR_FACTORY
 #include <libfswatch/c++/monitor_factory.hpp>
+#endif
 
 #include "logfile.h"
 #include "logdirectory.h"
