@@ -18,9 +18,12 @@ Lolz::~Lolz()
 {
 }
 
-bool Lolz::init()
+bool Lolz::init(string configPath)
 {
-    m_db = new Database("lolz.db");
+    m_config = YAML::LoadFile(configPath);
+    string dbpath = m_config["database"].as<std::string>();
+
+    m_db = new Database(dbpath);
 
     bool res;
     res = m_db->open();
@@ -59,7 +62,11 @@ bool Lolz::init()
 
     m_db->execute("CREATE VIRTUAL TABLE IF NOT EXISTS event_fts USING fts5(line, id UNINDEXED)");
 
-    addDirectory("/Users/ian/projects/lolz/logs");
+    for (YAML::Node node : m_config["directories"])
+    {
+        string path = node["path"].as<std::string>();
+        addDirectory(path, node);
+    }
 
     return true;
 }
@@ -80,7 +87,7 @@ bool Lolz::run()
     return true;
 }
 
-void Lolz::addDirectory(string path)
+void Lolz::addDirectory(string path, YAML::Node config)
 {
     string querySql = "SELECT id FROM logdirectory WHERE path=?";
     PreparedStatement* ps = m_db->prepareStatement(querySql);
@@ -91,7 +98,6 @@ void Lolz::addDirectory(string path)
     if (ps->step())
     {
         id = ps->getInt64(0);
-        log(INFO, "addDirectory: %s already exists with id: %lld", path.c_str(), id);
     }
     else
     {
@@ -101,27 +107,20 @@ void Lolz::addDirectory(string path)
         insertPs->bindString(1, path);
         insertPs->execute();
         id = m_db->getLastInsertId();
-        log(INFO, "addDirectory: %s is new, id=%lld", path.c_str(), id);
+
+        log(INFO, "addDirectory: %s is a n00b, id=%lld", path.c_str(), id);
         delete insertPs;
         m_db->endTransaction();
     }
     delete ps;
 
-    LogDirectory* dir = new LogDirectory(this, id, path);
+    LogDirectory* dir = new LogDirectory(this, id, path, config);
 
     m_dirs.insert(make_pair(path, dir));
 }
 
 void Lolz::addLogFile(LogFile* logFile)
 {
-/*
-    logfile.columns.insert(Column("id", true, true));
-    logfile.columns.insert(Column("logdir_id"));
-    logfile.columns.insert(Column("path"));
-    logfile.columns.insert(Column("position"));
-    logfile.columns.insert(Column("timestamp"));
-*/
-
     string querySql = "SELECT id, position, timestamp FROM logfile WHERE logdir_id=? AND path=?";
     PreparedStatement* ps = m_db->prepareStatement(querySql);
     ps->bindInt64(1, logFile->getDirectory()->getId());

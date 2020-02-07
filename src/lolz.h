@@ -7,6 +7,8 @@
 #include <geek/core-data.h>
 #include <geek/core-logger.h>
 
+#include <yaml-cpp/yaml.h>
+
 #include <map>
 #include <string>
 
@@ -16,14 +18,16 @@ class Lolz : Geek::Logger
     std::map<std::string, LogDirectory*> m_dirs;
     Geek::Core::Database* m_db;
 
+    YAML::Node m_config;
+
  public:
     Lolz();
     ~Lolz();
 
-    bool init();
+    bool init(std::string configPath);
     bool run();
 
-    void addDirectory(std::string path);
+    void addDirectory(std::string path, YAML::Node config);
     void addLogFile(LogFile* logFile);
     void updateLogFile(LogFile* logFile, uint64_t position);
     void logEvents(LogFile* logFile, Geek::Data* data);

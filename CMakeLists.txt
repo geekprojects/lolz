@@ -7,9 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(libgeek REQUIRED libgeek)
+pkg_check_modules(yamlcpp REQUIRED yaml-cpp)
 find_library(FSW_LIBRARY NAMES fswatch )
 
-add_definitions(${libgeek_CFLAGS})
+add_definitions(${libgeek_CFLAGS} ${yamlcpp_CFLAGS})
 
 add_executable(lolz
     src/main.cpp
@@ -18,5 +19,5 @@ add_executable(lolz
     src/logfile.cpp
 )
 
-target_link_libraries(lolz ${libgeek_LDFLAGS} ${FSW_LIBRARY})
+target_link_libraries(lolz ${libgeek_LDFLAGS} ${FSW_LIBRARY} ${yamlcpp_LDFLAGS})
 

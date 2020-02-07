@@ -16,6 +16,7 @@ class LogFile : Geek::Logger
     uint64_t m_id;
     LogDirectory* m_logDir;
     std::string m_path;
+    bool m_ignore;
 
     Geek::Mutex* m_queueMutex;
     std::vector<Geek::Data*> m_queue;
@@ -32,6 +33,9 @@ class LogFile : Geek::Logger
     uint64_t getId() { return m_id; }
     LogDirectory* getDirectory() { return m_logDir; }
     std::string getPath() { return m_path; }
+
+    void setIgnore(bool ignore) { m_ignore = ignore; }
+    bool isIgnore() { return m_ignore; }
 
     void setPosition(uint64_t position) { m_position = position; }
     uint64_t getPosition() { return m_position; }

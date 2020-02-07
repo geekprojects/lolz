@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
+#include <fnmatch.h>
 
 #include <string>
 #include <vector>
@@ -22,11 +23,13 @@
 using namespace std;
 using namespace Geek;
 
-LogDirectory::LogDirectory(Lolz* lolz, uint64_t id, std::string path) : Logger("LogDirectory[" + path + "]")
+LogDirectory::LogDirectory(Lolz* lolz, uint64_t id, std::string path, YAML::Node config)
+    : Logger("LogDirectory[" + path + "]")
 {
     m_lolz = lolz;
     m_id = id;
     m_path = path;
+    m_config = config;
 
     m_signal = Thread::createCondVar();
 }
@@ -62,16 +65,19 @@ void process_events(const vector<fsw::event>& events, void* context)
             }
         }
 
-        printf("process_events: %s: %s\n", evt.get_path().c_str(), eventnames.c_str());
         if (isFile)
         {
             if (isUpdated)
             {
                 dir->fileUpdated(evt.get_path());
             }
-            if (isDeleted)
+            else if (isDeleted)
             {
                 dir->fileDeleted(evt.get_path());
+            }
+            else
+            {
+                printf("process_events: Unhandled event: %s: %s\n", evt.get_path().c_str(), eventnames.c_str());
             }
         }
     }
@@ -152,9 +158,8 @@ void LogDirectory::scan(std::string dir)
         string entrypath = dir + string("/") + d->d_name;
         if (d->d_type == DT_REG)
         {
-            log(INFO, "scan: I haz log!: %s", d->d_name);
             LogFile* logFile = addFile(entrypath);
-            if (logFile != NULL)
+            if (logFile != NULL && !logFile->isIgnore())
             {
                 logFile->load();
             }
@@ -171,7 +176,7 @@ void LogDirectory::scan(std::string dir)
 void LogDirectory::fileUpdated(std::string path)
 {
     LogFile* logFile = addFile(path);
-    if (logFile == NULL)
+    if (logFile == NULL || logFile->isIgnore())
     {
         return;
     }
@@ -210,20 +215,50 @@ LogFile* LogDirectory::addFile(std::string path)
         ext = path.substr(pos + 1);
     }
 
+    string relativePath = path.substr(m_path.length() + 1);
+    bool acceptFile = false;
+    if (m_config["include"])
+    {
+        for (YAML::Node node : m_config["include"])
+        {
+            string include = node.as<std::string>();
+            //log(DEBUG, "addFile: include: %s", include.c_str());
+            int matches = fnmatch(include.c_str(), relativePath.c_str(), 0);//, FNM_PATHNAME);
+            //log(DEBUG, "addFile: include: matches=%d\n", matches);
+            if (matches != FNM_NOMATCH)
+            {
+                acceptFile = true;
+                break;
+            }
+        }
+    }
+    else
+    {
+        acceptFile = true;
+    }
+
     if (ext == "gz")
     {
-        return NULL;
+        acceptFile = false;
     }
 
     file = new LogFile(this, path);
-    m_lolz->addLogFile(file);
 
-    bool res;
-    res = file->init();
-    if (!res)
+    if (acceptFile)
     {
-        delete file;
-        return NULL;
+        file->setIgnore(false);
+        m_lolz->addLogFile(file);
+        bool res;
+        res = file->init();
+        if (!res)
+        {
+            delete file;
+            return NULL;
+        }
+    }
+    else
+    {
+        file->setIgnore(true);
     }
 
     m_logFiles.insert(make_pair(path, file));

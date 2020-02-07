@@ -9,6 +9,7 @@
 #include <geek/core-thread.h>
 
 #include <libfswatch/c++/monitor.hpp>
+#include <yaml-cpp/yaml.h>
 
 class Lolz;
 class LogFile;
@@ -20,6 +21,8 @@ class LogDirectory : Geek::Logger, public Geek::Thread
     Lolz* m_lolz;
     uint64_t m_id;
     std::string m_path;
+    YAML::Node m_config;
+
     std::map<std::string, LogFile*> m_logFiles;
 
     fsw::monitor* m_monitor;
@@ -32,7 +35,7 @@ class LogDirectory : Geek::Logger, public Geek::Thread
     LogFile* findFile(std::string path);
 
  public:
-    LogDirectory(Lolz* lolz, uint64_t id, std::string path);
+    LogDirectory(Lolz* lolz, uint64_t id, std::string path, YAML::Node config);
     virtual ~LogDirectory();
 
     uint64_t getId() { return m_id; }

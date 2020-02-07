@@ -17,6 +17,7 @@ LogFile::LogFile(LogDirectory* dir, std::string path) : Logger("LogFile[" + path
 {
     m_logDir = dir;
     m_path = path;
+    m_ignore = false;
 
     m_fd = -1;
     m_position = 0;
@@ -62,10 +63,10 @@ bool LogFile::init()
         m_position = 0;
     }
 
-    log(INFO, "load: I'm in ur %s, findin ur bugz", m_path.c_str());
+    log(INFO, "load: I'm in ur log, findin ur bugz");
     if (m_position > 0)
     {
-        log(INFO, "load: I is skippin to %lld", m_position);
+        log(INFO, "load: I no this file! I is skippin to %lld", m_position);
         lseek(m_fd, m_position, SEEK_SET);
     }
 
@@ -83,7 +84,7 @@ void LogFile::load()
         res = read(m_fd, buf, 4096);
         if (res == -1)
         {
-            error("load: Failed to read!");
+            error("load: Oh noes!");
             return;
         }
         else if (res == 0)
@@ -98,7 +99,7 @@ void LogFile::load()
     {
         m_queueMutex->lock();
         m_position += count;
-        log(INFO, "load: I haz %lld moar bytes n stuff!", count);
+        log(INFO, "load: I haz %lld moar bytes n stuff", count);
         m_queue.push_back(data);
         m_queueMutex->unlock();
 
