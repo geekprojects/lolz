@@ -18,7 +18,7 @@ static const struct option g_options[] =
 int main(int argc, char** argv)
 {
     string configPath;
-configPath = string(getenv("HOME")) + "/.lolz.yml";
+    configPath = string(getenv("HOME")) + "/.lolz.yml";
 
     while (true)
     {
@@ -28,25 +28,27 @@ configPath = string(getenv("HOME")) + "/.lolz.yml";
             "c:",
             g_options,
             NULL);
-if (c == -1)
-{
-break;
-}
-switch (c)
-{
-case 'c':
-configPath = string(optarg);
-break;
+        if (c == -1)
+        {
+            break;
+        }
+        switch (c)
+        {
+            case 'c':
+                configPath = string(optarg);
+                break;
 
-}
+        }
     }
-
-printf("lolz: config=%s\n", configPath.c_str());
 
     Lolz* lolz = new Lolz();
 
-    lolz->init(configPath);
-    lolz->run();
+    bool res;
+    res = lolz->init(configPath);
+    if (res)
+    {
+        lolz->run();
+    }
 
     delete lolz;
 

@@ -20,7 +20,16 @@ Lolz::~Lolz()
 
 bool Lolz::init(string configPath)
 {
-    m_config = YAML::LoadFile(configPath);
+    try
+    {
+        m_config = YAML::LoadFile(configPath);
+    }
+    catch (exception& e)
+    {
+        error("init: failed to open configuration file: %s", configPath.c_str());
+        return false;
+    }
+
     string dbpath = m_config["database"].as<std::string>();
 
     m_db = new Database(dbpath);
