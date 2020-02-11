@@ -47,24 +47,37 @@ void process_events(const vector<fsw::event>& events, void* context)
     for (const fsw::event& evt : events)
     {
         string eventnames = "";
-        bool isFile = false;
+        bool isFile = true;
         bool isUpdated = false;
         bool isDeleted = false;
         for (fsw_event_flag flag : evt.get_flags())
         {
             string eventname = fsw::event::get_event_flag_name(flag);
             eventnames += eventname + ", ";
-            if (flag == IsFile)
+            switch (flag)
             {
-                isFile = true;
-            }
-            else if (flag == Created || flag == Updated)
-            {
-                isUpdated = true;
-            }
-            else if (flag == Removed)
-            {
-                isDeleted = true;
+                case IsDir:
+                case IsSymLink:
+                    // The inotify watcher doesn't seem to tell us if it *is* a file,
+                    // just when it isn't :-(
+                    isFile = false;
+                    break;
+
+                case Created:
+                case Updated:
+                case MovedTo:
+                case Renamed:
+                    isUpdated = true;
+                    break;
+
+                case Removed:
+                case MovedFrom:
+                    isDeleted = true;
+                    break;
+
+                default:
+                    // Ignore
+                    break;
             }
         }
 
@@ -212,7 +225,7 @@ LogFile* LogDirectory::addFile(std::string path)
     }
 
     string ext = "";
-    int pos = path.rfind('.');
+    string::size_type pos = path.rfind('.');
     if (pos != string::npos)
     {
         ext = path.substr(pos + 1);

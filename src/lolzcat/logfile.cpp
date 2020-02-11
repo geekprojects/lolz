@@ -57,7 +57,7 @@ bool LogFile::init()
     }
 #endif
 
-    if (s.st_size < m_position)
+    if ((uint64_t)s.st_size < m_position)
     {
         log(WARN, "load: NO WAI! FILE SHORTR THAN ME THINK!");
         m_position = 0;
