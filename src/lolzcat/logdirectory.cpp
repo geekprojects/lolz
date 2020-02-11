@@ -50,6 +50,7 @@ void process_events(const vector<fsw::event>& events, void* context)
         bool isFile = true;
         bool isUpdated = false;
         bool isDeleted = false;
+        bool isPlatformSpecific = false;
         for (fsw_event_flag flag : evt.get_flags())
         {
             string eventname = fsw::event::get_event_flag_name(flag);
@@ -75,10 +76,19 @@ void process_events(const vector<fsw::event>& events, void* context)
                     isDeleted = true;
                     break;
 
+                case PlatformSpecific:
+                    isPlatformSpecific = true;
+                    break;
+
                 default:
                     // Ignore
                     break;
             }
+        }
+
+        if (isPlatformSpecific)
+        {
+            continue;
         }
 
         if (isFile)
