@@ -24,15 +24,16 @@ int main(int argc, char** argv)
 
     string keyword = argv[1];
 
-    string query = "SELECT highlight(event_fts, 0, '<b>', '</b>') FROM event_fts WHERE event_fts MATCH (?)";
+    string query = "SELECT rowid, highlight(event_fts, 0, '<b>', '</b>') FROM event_fts WHERE event_fts MATCH (?)";
 
     PreparedStatement* ps = db->prepareStatement(query);
     ps->bindString(1, keyword);
     ps->executeQuery();
     while (ps->step())
     {
-        string result = ps->getString(0);
-        printf("%s\n", result.c_str());
+        uint64_t id = ps->getInt64(0);
+        string line = ps->getString(1);
+        printf("%lld: %s\n", id, line.c_str());
     }
     delete ps;
 

@@ -69,7 +69,9 @@ bool Lolz::init(string configPath)
 
     m_db->checkSchema(tables);
 
-    m_db->execute("CREATE VIRTUAL TABLE IF NOT EXISTS event_fts USING fts5(line, id UNINDEXED)");
+    //m_db->execute("CREATE VIRTUAL TABLE IF NOT EXISTS event_fts USING fts5(line, id UNINDEXED)");
+    m_db->execute("CREATE VIRTUAL TABLE IF NOT EXISTS event_fts USING fts5(line, content=event, content_rowid=id, tokenize='porter unicode61')");
+    m_db->execute("CREATE TRIGGER trg_event_fts AFTER INSERT ON event BEGIN INSERT INTO event_fts(rowid, line) VALUES (new.id, new.line); END;");
 
     for (YAML::Node node : m_config["directories"])
     {
@@ -180,13 +182,15 @@ void Lolz::updateLogFile(LogFile* logFile, uint64_t position)
     m_db->endTransaction();
 }
 
-void Lolz::logEvents(LogFile* logFile, Data* data)
+void Lolz::logEvents(LogFile* logFile, time_t timestamp, Data* data)
 {
     string insertSql = "INSERT INTO event (id, logfile_id, timestamp, line) VALUES (null, ?, ?, ?)";
     PreparedStatement* insertPs = m_db->prepareStatement(insertSql);
 
+/*
     string insertFtsSql = "INSERT INTO event_fts (line, id) VALUES (?, ?)";
     PreparedStatement* insertFtsPs = m_db->prepareStatement(insertFtsSql);
+*/
 
     data->reset();
 
@@ -195,20 +199,21 @@ void Lolz::logEvents(LogFile* logFile, Data* data)
     {
         string line = data->readLine();
         insertPs->bindInt64(1, logFile->getId());
-        insertPs->bindInt64(2, 0);
+        insertPs->bindInt64(2, timestamp);
         insertPs->bindString(3, line);
         insertPs->execute();
-
+/*
         uint64_t id = m_db->getLastInsertId();
 
         insertFtsPs->bindString(1, line);
         insertFtsPs->bindInt64(2, id);
         insertFtsPs->execute();
+*/
     }
     m_db->endTransaction();
 
     delete insertPs;
-    delete insertFtsPs;
+//    delete insertFtsPs;
 }
 
 uint64_t Lolz::getTimestamp()

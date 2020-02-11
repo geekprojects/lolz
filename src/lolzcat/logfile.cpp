@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
+#include <time.h>
 
 #include <geek/core-data.h>
 
@@ -75,6 +76,8 @@ bool LogFile::init()
 
 void LogFile::load()
 {
+    time_t timestamp = time(NULL);
+
     Data* data = new Data();
     uint8_t buf[4096];
     uint64_t count = 0;
@@ -97,10 +100,14 @@ void LogFile::load()
 
     if (count > 0)
     {
+        LogEvent event;
+        event.data = data;
+        event.timestamp = timestamp;
+
         m_queueMutex->lock();
         m_position += count;
         log(INFO, "load: I haz %lld moar bytes n stuff", count);
-        m_queue.push_back(data);
+        m_queue.push_back(event);
         m_queueMutex->unlock();
 
         m_logDir->signal();

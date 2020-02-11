@@ -138,17 +138,17 @@ bool LogDirectory::main()
 
             uint64_t position = logFile->getPosition();
 
-            vector<Data*> queue = logFile->getQueue();
+            vector<LogEvent> queue = logFile->getQueue();
             logFile->clearQueue();
 
             logFile->getQueueMutex()->unlock();
 
             if (!queue.empty())
             {
-                for (Data* data : queue)
+                for (LogEvent event : queue)
                 {
-                    m_lolz->logEvents(logFile, data);
-                    delete data;
+                    m_lolz->logEvents(logFile, event.timestamp, event.data);
+                    delete event.data;
                 }
             }
             m_lolz->updateLogFile(logFile, position);

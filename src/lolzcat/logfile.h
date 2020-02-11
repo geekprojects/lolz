@@ -10,6 +10,12 @@
 
 class LogDirectory;
 
+struct LogEvent
+{
+    Geek::Data* data;
+    time_t timestamp;
+};
+
 class LogFile : Geek::Logger
 {
  private:
@@ -19,7 +25,7 @@ class LogFile : Geek::Logger
     bool m_ignore;
 
     Geek::Mutex* m_queueMutex;
-    std::vector<Geek::Data*> m_queue;
+    std::vector<LogEvent> m_queue;
 
     int m_fd;
     uint64_t m_position;
@@ -43,7 +49,7 @@ class LogFile : Geek::Logger
     uint64_t getTimestamp() { return m_timestamp; }
 
     Geek::Mutex* getQueueMutex() { return m_queueMutex; }
-    std::vector<Geek::Data*>& getQueue() { return m_queue; }
+    std::vector<LogEvent>& getQueue() { return m_queue; }
     void clearQueue() { m_queue.clear(); }
 
     bool init();
