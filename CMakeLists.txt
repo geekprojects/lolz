@@ -25,12 +25,16 @@ include_directories(
 
 add_definitions(${libgeek_CFLAGS} ${yamlcpp_CFLAGS})
 
-add_executable(lolz
-    src/main.cpp
-    src/lolz.cpp
-    src/logdirectory.cpp
-    src/logfile.cpp
+add_executable(lolzcat
+    src/lolzcat/main.cpp
+    src/lolzcat/lolz.cpp
+    src/lolzcat/logdirectory.cpp
+    src/lolzcat/logfile.cpp
 )
+target_link_libraries(lolzcat ${libgeek_LDFLAGS} ${fsw_LIBRARY} ${yamlcpp_LDFLAGS})
 
-target_link_libraries(lolz ${libgeek_LDFLAGS} ${fsw_LIBRARY} ${yamlcpp_LDFLAGS})
+add_executable(lolzfindr
+    src/lolzfindr/main.cpp
+)
+target_link_libraries(lolzfindr ${libgeek_LDFLAGS} ${yamlcpp_LDFLAGS})
 
