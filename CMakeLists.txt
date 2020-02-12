@@ -6,6 +6,12 @@ include(CheckIncludeFile)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+SET(FLAGS_COMMON "-Wall -Werror")
+SET(CMAKE_C_FLAGS "${FLAGS_COMMON}")
+SET(CMAKE_CXX_FLAGS "${FLAGS_COMMON}")
+SET(CMAKE_C_FLAGS_DEBUG "${FLAGS_COMMON} -O0 -g  -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer")
+SET(CMAKE_CXX_FLAGS_DEBUG "${FLAGS_COMMON} -O0 -g -fsanitize=address -fsanitize-address-use-after-scope -fno-omit-frame-pointer")
+
 find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(libgeek REQUIRED libgeek)
@@ -13,6 +19,10 @@ pkg_check_modules(yamlcpp REQUIRED yaml-cpp)
 
 find_library(fsw_LIBRARY NAMES fswatch )
 find_path(fsw_INCLUDE_BASE NAMES libfswatch/c++/monitor.hpp)
+if (NOT fsw_LIBRARY)
+    message(FATAL_ERROR "Unable to find libfswatch")
+endif()
+
 find_path(HAS_FSW_MONITOR_FACTORY NAMES libfswatch/c++/monitor_factory.hpp)
 
 if (HAS_FSW_MONITOR_FACTORY)
