@@ -4,6 +4,7 @@
 #include <yaml-cpp/yaml.h>
 
 #include <stdio.h>
+#include <inttypes.h>
 
 using namespace std;
 using namespace Geek;
@@ -33,7 +34,7 @@ int main(int argc, char** argv)
     {
         uint64_t id = ps->getInt64(0);
         string line = ps->getString(1);
-        printf("%lld: %s\n", id, line.c_str());
+        printf("%" PRIu64 ": %s\n", id, line.c_str());
     }
     delete ps;
 

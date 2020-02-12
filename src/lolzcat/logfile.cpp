@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #include <time.h>
+#include <inttypes.h>
 
 #include <geek/core-data.h>
 
@@ -67,7 +68,7 @@ bool LogFile::init()
     log(INFO, "load: I'm in ur log, findin ur bugz");
     if (m_position > 0)
     {
-        log(INFO, "load: I no this file! I is skippin to %lld", m_position);
+        log(INFO, "load: I no this file! I is skippin to %" PRIu64, m_position);
         lseek(m_fd, m_position, SEEK_SET);
     }
 
@@ -106,7 +107,7 @@ void LogFile::load()
 
         m_queueMutex->lock();
         m_position += count;
-        log(INFO, "load: I haz %lld moar bytes n stuff", count);
+        log(INFO, "load: I haz %" PRIu64 " moar bytes n stuff", count);
         m_queue.push_back(event);
         m_queueMutex->unlock();
 

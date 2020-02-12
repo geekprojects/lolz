@@ -4,6 +4,7 @@
 #include "logdirectory.h"
 
 #include <unistd.h>
+#include <inttypes.h>
 #include <sys/time.h>
 
 using namespace std;
@@ -136,7 +137,7 @@ void Lolz::addDirectory(string path, YAML::Node config)
         insertPs->execute();
         id = m_db->getLastInsertId();
 
-        log(INFO, "addDirectory: %s is a n00b, id=%lld", path.c_str(), id);
+        log(INFO, "addDirectory: %s is a n00b, id=%" PRIu64, path.c_str(), id);
         delete insertPs;
         m_db->endTransaction();
     }
