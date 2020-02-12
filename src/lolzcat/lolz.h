@@ -6,6 +6,7 @@
 #include <geek/core-database.h>
 #include <geek/core-data.h>
 #include <geek/core-logger.h>
+#include <geek/core-thread.h>
 
 #include <yaml-cpp/yaml.h>
 
@@ -20,12 +21,15 @@ class Lolz : Geek::Logger
 
     YAML::Node m_config;
 
+    Geek::CondVar* m_runningVar;
+
  public:
     Lolz();
     ~Lolz();
 
     bool init(std::string configPath);
     bool run();
+    bool stop();
 
     void addDirectory(std::string path, YAML::Node config);
     void addLogFile(LogFile* logFile);

@@ -12,10 +12,17 @@ using namespace Geek::Core;
 
 Lolz::Lolz() : Logger("Lolz")
 {
+    m_runningVar = Thread::createCondVar();
 }
 
 Lolz::~Lolz()
 {
+    for (auto it : m_dirs)
+    {
+        delete it.second;
+    }
+
+    delete m_db;
 }
 
 bool Lolz::init(string configPath)
@@ -90,11 +97,21 @@ bool Lolz::run()
         it.second->start();
     }
 
-    while (true)
+    m_runningVar->wait();
+
+    for (auto it : m_dirs)
     {
-        sleep(1);
+        it.second->stop();
     }
 
+    sleep(1);
+
+    return true;
+}
+
+bool Lolz::stop()
+{
+    m_runningVar->signal();
     return true;
 }
 

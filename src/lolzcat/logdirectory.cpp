@@ -39,6 +39,18 @@ LogDirectory::LogDirectory(Lolz* lolz, uint64_t id, std::string path, YAML::Node
 
 LogDirectory::~LogDirectory()
 {
+    if (m_monitor != NULL)
+    {
+        delete m_monitor;
+    }
+
+    for (auto it : m_logFiles)
+    {
+        delete it.second;
+    }
+
+    delete m_monitorThread;
+    delete m_signal;
 }
 
 void process_events(const vector<fsw::event>& events, void* context)
@@ -129,34 +141,56 @@ void LogDirectory::watch()
 
 bool LogDirectory::main()
 {
-    while (true)
+    m_running = true;
+
+    checkLogQueues();
+    while (m_running)
     {
-        for (auto it : m_logFiles)
-        {
-            LogFile* logFile = it.second;
-            logFile->getQueueMutex()->lock();
-
-            uint64_t position = logFile->getPosition();
-
-            vector<LogEvent> queue = logFile->getQueue();
-            logFile->clearQueue();
-
-            logFile->getQueueMutex()->unlock();
-
-            if (!queue.empty())
-            {
-                for (LogEvent event : queue)
-                {
-                    m_lolz->logEvents(logFile, event.timestamp, event.data);
-                    delete event.data;
-                }
-            }
-            m_lolz->updateLogFile(logFile, position);
-        }
-
         // Wait for more data
         m_signal->wait();
+
+        checkLogQueues();
     }
+
+    log(INFO, "main: Ok, stoppin");
+    return true;
+}
+
+void LogDirectory::checkLogQueues()
+{
+    for (auto it : m_logFiles)
+    {
+        LogFile* logFile = it.second;
+        logFile->getQueueMutex()->lock();
+
+        uint64_t position = logFile->getPosition();
+
+        vector<LogEvent> queue = logFile->getQueue();
+        logFile->clearQueue();
+
+        logFile->getQueueMutex()->unlock();
+
+        if (!queue.empty())
+        {
+            for (LogEvent event : queue)
+            {
+                m_lolz->logEvents(logFile, event.timestamp, event.data);
+                delete event.data;
+            }
+        }
+        m_lolz->updateLogFile(logFile, position);
+    }
+}
+
+void LogDirectory::stop()
+{
+    if (m_monitor != NULL)
+    {
+        m_monitor->stop();
+    }
+
+    m_running = false;
+    m_signal->signal();
 }
 
 void LogDirectory::scan(std::string dir)
@@ -307,7 +341,7 @@ void LogDirectory::signal()
     m_signal->signal();
 }
 
-MonitorThread::MonitorThread(LogDirectory* logDir)
+MonitorThread::MonitorThread(LogDirectory* logDir) : Logger("MonitorThread[" + logDir->getPath() + "]")
 {
     m_logDir = logDir;
 }
@@ -319,6 +353,7 @@ MonitorThread::~MonitorThread()
 bool MonitorThread::main()
 {
     m_logDir->getMonitor()->start();
+    log(INFO, "main: I not looking!!");
     return true;
 }
 

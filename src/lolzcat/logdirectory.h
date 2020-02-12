@@ -28,11 +28,14 @@ class LogDirectory : Geek::Logger, public Geek::Thread
     fsw::monitor* m_monitor;
     MonitorThread* m_monitorThread;
 
+    bool m_running;
     Geek::CondVar* m_signal;
 
     void scan(std::string dir);
     LogFile* addFile(std::string path);
     LogFile* findFile(std::string path);
+
+    void checkLogQueues();
 
  public:
     LogDirectory(Lolz* lolz, uint64_t id, std::string path, YAML::Node config);
@@ -45,6 +48,7 @@ class LogDirectory : Geek::Logger, public Geek::Thread
     void watch();
 
     virtual bool main();
+    void stop();
 
     void fileUpdated(std::string path);
     void fileDeleted(std::string path);
@@ -52,7 +56,7 @@ class LogDirectory : Geek::Logger, public Geek::Thread
     void signal();
 };
 
-class MonitorThread : public Geek::Thread
+class MonitorThread : public Geek::Thread, Geek::Logger
 {
  private:
     LogDirectory* m_logDir;
