@@ -2,27 +2,26 @@
 
 Oh hai! I'm in ur logz, findin ur bugz!
 
-
-## Building
+## Installation
 
 ### Requirements
-* [libgeek](https://github.com/geekprojects/libgeek)
-* [fswatch](https://github.com/emcrisostomo/fswatch)
-* [yaml-cpp](https://github.com/jbeder/yaml-cpp)
-* sqlite3
+  * [libgeek](https://github.com/geekprojects/libgeek)
+  * [fswatch](https://github.com/emcrisostomo/fswatch)
+  * [yaml-cpp](https://github.com/jbeder/yaml-cpp)
+  * sqlite3
 
 ### Building
-* mkdir build
-* cd build
-* cmake ..
-* make
+  * mkdir build
+  * cd build
+  * cmake ..
+  * make
 
 ## Usage
 
 ### Configuration
 
 Create a lolz.yml file, by default $HOME/.lolz.yml will be used. e.g.:
-```
+```YAML
 database: /home/me/stuff/lolz.db
 
 directories:
@@ -38,7 +37,6 @@ directories:
 ./lolzfindr ERROR
 
 ./lolzfindr --tail --exec='terminal-notifier -message "{}"' ERROR
-
 
 ## License
 
