@@ -46,5 +46,5 @@ target_link_libraries(lolzcat ${libgeek_LDFLAGS} ${fsw_LIBRARY} ${yamlcpp_LDFLAG
 add_executable(lolzfindr
     src/lolzfindr/main.cpp
 )
-target_link_libraries(lolzfindr ${libgeek_LDFLAGS} ${yamlcpp_LDFLAGS})
+target_link_libraries(lolzfindr ${libgeek_LDFLAGS} ${yamlcpp_LDFLAGS} -lsqlite3)
 
