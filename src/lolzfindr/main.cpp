@@ -8,6 +8,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <inttypes.h>
+#include <time.h>
 
 using namespace std;
 using namespace Geek;
@@ -152,9 +153,16 @@ int main(int argc, char** argv)
             break;
         }
 
-        usleep(100000);
+        struct timespec tv;
+        tv.tv_sec = 0;
+        tv.tv_nsec = 100000000;
+        nanosleep(&tv, NULL);
     }
-    printf("kthxbye!\n");
+
+    if (tail)
+    {
+        printf("kthxbye!\n");
+    }
 
     delete db;
 

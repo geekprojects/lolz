@@ -34,6 +34,10 @@ LogDirectory::LogDirectory(Lolz* lolz, uint64_t id, std::string path, YAML::Node
     m_path = path;
     m_config = config;
 
+    m_monitor = NULL;
+    m_monitorThread = NULL;
+
+    m_running = false;
     m_signal = Thread::createCondVar();
 }
 

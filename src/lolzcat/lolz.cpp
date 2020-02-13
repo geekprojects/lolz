@@ -13,6 +13,7 @@ using namespace Geek::Core;
 
 Lolz::Lolz() : Logger("Lolz")
 {
+    m_db = NULL;
     m_runningVar = Thread::createCondVar();
 }
 
@@ -24,6 +25,7 @@ Lolz::~Lolz()
     }
 
     delete m_db;
+    delete m_runningVar;
 }
 
 bool Lolz::init(string configPath)

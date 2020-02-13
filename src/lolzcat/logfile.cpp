@@ -17,6 +17,7 @@ using namespace Geek;
 
 LogFile::LogFile(LogDirectory* dir, std::string path) : Logger("LogFile[" + path + "]")
 {
+    m_id = 0;
     m_logDir = dir;
     m_path = path;
     m_ignore = false;
@@ -80,11 +81,11 @@ void LogFile::load()
     time_t timestamp = time(NULL);
 
     Data* data = new Data();
-    uint8_t buf[4096];
     uint64_t count = 0;
     while (true)
     {
         int res;
+        uint8_t buf[4096];
         res = read(m_fd, buf, 4096);
         if (res == -1)
         {
