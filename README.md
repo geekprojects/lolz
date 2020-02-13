@@ -1,12 +1,46 @@
-lolz [![Build Status](https://travis-ci.org/geekprojects/lolz.svg?branch=master)](https://travis-ci.org/geekprojects/lolz)
-====
+# lolz [![Build Status](https://travis-ci.org/geekprojects/lolz.svg?branch=master)](https://travis-ci.org/geekprojects/lolz)
 
 Oh hai! I'm in ur logz, findin ur bugz!
 
 
+## Building
 
-License
--------
+### Requirements
+* [libgeek](https://github.com/geekprojects/libgeek)
+* [fswatch](https://github.com/emcrisostomo/fswatch)
+* [yaml-cpp](https://github.com/jbeder/yaml-cpp)
+* sqlite3
+
+### Building
+* mkdir build
+* cd build
+* cmake ..
+* make
+
+## Usage
+
+### Configuration
+
+Create a lolz.yml file, by default $HOME/.lolz.yml will be used. e.g.:
+```
+database: /home/me/stuff/lolz.db
+
+directories:
+    - path: home/me/projects
+      include:
+      - *.log
+```
+
+### Ceiling Cat - The Daemon
+./lolzcat
+
+### lolzfindr
+./lolzfindr ERROR
+
+./lolzfindr --tail --exec='terminal-notifier -message "{}"' ERROR
+
+
+## License
 
 lolz is available under the GPL3 license.
 
