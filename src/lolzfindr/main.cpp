@@ -29,17 +29,30 @@ void signalHandler(int sig)
     g_running = false;
 }
 
-void execute(string execStr, string line)
+string substitute(string str, string find, string replace)
 {
+    int findLen = find.length();
+    while (true)
+    {
+        string::size_type pos = str.find(find);
+        if (pos == string::npos)
+        {
+            break;
+        }
+        str.replace(pos, findLen, replace);
+    }
+    return str;
+}
+
+void execute(string execStr, string line, string file)
+{
+    execStr = substitute(execStr, "{line}", line);
+    execStr = substitute(execStr, "{file}", file);
+    printf("execute: %s\n", execStr.c_str());
+
     int res = fork();
     if (res == 0)
     {
-        string::size_type pos = execStr.find("{}");
-        if (pos != string::npos)
-        {
-            execStr.replace(pos, 2, line);
-        }
-        printf("execute: %s\n", execStr.c_str());
         system(execStr.c_str());
         exit(0);
     }
@@ -122,7 +135,16 @@ int main(int argc, char** argv)
         delete maxIdPs;
     }
 
-    string query = "SELECT rowid, line FROM event_fts WHERE event_fts MATCH (?) AND rowid > ? ORDER BY rowid";
+    string query =
+        "SELECT"
+        "    e.id, e.line, f.path"
+        "  FROM event_fts"
+        "  JOIN event e ON e.id = event_fts.rowid"
+        "  JOIN logfile f ON f.id = e.logfile_id"
+        "  WHERE"
+        "    event_fts MATCH (?) AND"
+        "    e.id > ?"
+        "  ORDER BY e.id";
 
     g_running = true;
 
@@ -139,10 +161,11 @@ int main(int argc, char** argv)
             {
                 lastId = ps->getInt64(0);
                 string line = ps->getString(1);
-                printf("%" PRIu64 ": %s\n", lastId, line.c_str());
+                string file = ps->getString(2);
+                printf("%" PRIu64 ": %s: %s\n", lastId, file.c_str(), line.c_str());
                 if (execStr.length() > 0)
                 {
-                    execute(execStr, line);
+                    execute(execStr, line, file);
                 }
             }
         }

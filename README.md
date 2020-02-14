@@ -31,12 +31,25 @@ directories:
 ```
 
 ### Ceiling Cat - The Daemon
-./lolzcat
+```bash
+lolzcat --config=/path/to/config
+```
 
 ### lolzfindr
+```bash
 ./lolzfindr ERROR
+```
 
-./lolzfindr --tail --exec='terminal-notifier -message "{}"' ERROR
+#### Linux
+```bash
+lolzfindr --tail --exec='notify-send "{line}"' ERROR
+```
+
+#### MacOS
+Using [terminal-notifier](https://github.com/julienXX/terminal-notifier) to provide a notification that links to the log file:
+````bash
+lolzfindr --tail --exec='terminal-notifier -message "{line}" -title "Oh noes!" -open "file://{file}"' ERROR
+````
 
 ## License
 
