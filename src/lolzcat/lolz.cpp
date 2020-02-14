@@ -43,6 +43,7 @@ bool Lolz::init(string configPath)
     string dbpath = m_config["database"].as<std::string>();
 
     m_db = new Database(dbpath);
+    m_db->setExtraOpenFlags(SQLITE_OPEN_FULLMUTEX);
 
     bool res;
     res = m_db->open();
