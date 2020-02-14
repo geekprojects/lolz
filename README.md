@@ -5,16 +5,16 @@ Oh hai! I'm in ur logz, findin ur bugz!
 ## Installation
 
 ### Requirements
-  * [libgeek](https://github.com/geekprojects/libgeek)
-  * [fswatch](https://github.com/emcrisostomo/fswatch)
-  * [yaml-cpp](https://github.com/jbeder/yaml-cpp)
-  * sqlite3
+* [libgeek](https://github.com/geekprojects/libgeek)
+* [fswatch](https://github.com/emcrisostomo/fswatch)
+* [yaml-cpp](https://github.com/jbeder/yaml-cpp)
+* sqlite3
 
 ### Building
-  * mkdir build
-  * cd build
-  * cmake ..
-  * make
+* mkdir build
+* cd build
+* cmake ..
+* make
 
 ## Usage
 
@@ -31,6 +31,8 @@ directories:
 ```
 
 ### Ceiling Cat - The Daemon
+
+Starting lolzcat:
 ```bash
 lolzcat --config=/path/to/config
 ```
@@ -39,14 +41,15 @@ lolzcat --config=/path/to/config
 ```bash
 ./lolzfindr ERROR
 ```
-
-#### Linux
+#### Notificaations
+Send notifications every time you get an event that matches a pattern:
+##### Linux
 ```bash
-lolzfindr --tail --exec='notify-send "{line}"' ERROR
+lolzfindr --tail --exec='notify-send "{file}" "{line}"' ERROR
 ```
 
-#### MacOS
-Using [terminal-notifier](https://github.com/julienXX/terminal-notifier) to provide a notification that links to the log file:
+##### MacOS
+Use [terminal-notifier](https://github.com/julienXX/terminal-notifier):
 ````bash
 lolzfindr --tail --exec='terminal-notifier -message "{line}" -title "Oh noes!" -open "file://{file}"' ERROR
 ````
@@ -57,6 +60,5 @@ lolz is available under the GPL3 license.
 
 This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the [GNU General Public License] (COPYING) for more details.
-
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the [GNU General Public License](COPYING) for more details.
 
