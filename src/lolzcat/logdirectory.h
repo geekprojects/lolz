@@ -50,8 +50,8 @@ class LogDirectory : Geek::Logger, public Geek::Thread
     virtual bool main();
     void stop();
 
-    void fileUpdated(std::string path);
-    void fileDeleted(std::string path);
+    void fileUpdated(const std::string path);
+    void fileDeleted(const std::string path);
 
     void signal();
 };

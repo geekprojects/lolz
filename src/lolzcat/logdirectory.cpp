@@ -237,7 +237,7 @@ void LogDirectory::scan(std::string dir)
     closedir(fd);
 }
 
-void LogDirectory::fileUpdated(std::string path)
+void LogDirectory::fileUpdated(const string path)
 {
     LogFile* logFile = addFile(path);
     if (logFile == NULL || logFile->isIgnore())
@@ -247,7 +247,7 @@ void LogDirectory::fileUpdated(std::string path)
     logFile->load();
 }
 
-void LogDirectory::fileDeleted(std::string path)
+void LogDirectory::fileDeleted(const string path)
 {
     auto it = m_logFiles.find(path);
     if (it == m_logFiles.end())

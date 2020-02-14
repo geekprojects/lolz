@@ -29,7 +29,7 @@ void signalHandler(int sig)
     g_running = false;
 }
 
-string substitute(string str, string find, string replace)
+string substitute(string str, const string find, const string replace)
 {
     int findLen = find.length();
     while (true)

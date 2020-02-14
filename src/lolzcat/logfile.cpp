@@ -15,7 +15,7 @@
 using namespace std;
 using namespace Geek;
 
-LogFile::LogFile(LogDirectory* dir, std::string path) : Logger("LogFile[" + path + "]")
+LogFile::LogFile(LogDirectory* dir, const string path) : Logger("LogFile[" + path + "]")
 {
     m_id = 0;
     m_logDir = dir;

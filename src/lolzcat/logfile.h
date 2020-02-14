@@ -32,7 +32,7 @@ class LogFile : Geek::Logger
     uint64_t m_timestamp;
 
  public:
-    LogFile(LogDirectory* dir, std::string path);
+    LogFile(LogDirectory* dir, const std::string path);
     virtual ~LogFile();
 
     void setId(uint64_t id) { m_id = id; }
