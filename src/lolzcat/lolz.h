@@ -25,7 +25,7 @@ class Lolz : Geek::Logger
 
  public:
     Lolz();
-    ~Lolz();
+    virtual ~Lolz();
 
     bool init(std::string configPath);
     bool run();

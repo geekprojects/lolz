@@ -31,6 +31,7 @@ LogFile::LogFile(LogDirectory* dir, std::string path) : Logger("LogFile[" + path
 
 LogFile::~LogFile()
 {
+    delete m_queueMutex;
 }
 
 bool LogFile::init()
