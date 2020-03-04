@@ -29,6 +29,12 @@ void signalHandler(int sig)
     g_running = false;
 }
 
+void childHandler(int sig)
+{
+    // TODO: We should keep track of when these processes complete for rate limiting
+    wait(NULL);
+}
+
 string substitute(string str, const string find, const string replace)
 {
     int findLen = find.length();
@@ -108,6 +114,8 @@ int main(int argc, char** argv)
     act.sa_handler = signalHandler;
     act.sa_flags = 0;
     sigaction(SIGINT, &act, 0);
+
+    signal(SIGCHLD, childHandler);
 
     Database* db = new Database(dbpath, true);
 
