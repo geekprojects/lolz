@@ -9,6 +9,7 @@
 #include <getopt.h>
 #include <inttypes.h>
 #include <time.h>
+#include <sys/wait.h>
 
 using namespace std;
 using namespace Geek;
