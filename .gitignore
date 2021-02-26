@@ -1,4 +1,4 @@
-
 logs/
 build/
-
+.idea/
+cmake-build-debug/
